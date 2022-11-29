@@ -11,15 +11,15 @@ export async function redisStore(config) {
 const buildRedisStoreWithConfig = (redisCache, config) => {
   const isCacheableValue =
     config.isCacheableValue || (value => value !== undefined && value !== null);
-  const set = async (key, value, options) => {
+  const set = async (key, value, ttl) => {
     if (!isCacheableValue(value)) {
       throw new Error(`"${value}" is not a cacheable value`);
     }
 
-    const ttl = (options?.ttl || options?.ttl === 0) ? options.ttl : config.ttl;
+    const nttl = ttl === 0 ? ttl : config.ttl;
 
-    if (ttl) {
-      return redisCache.setEx(key, ttl, encodeValue(value));
+    if (nttl) {
+      return redisCache.setEx(key, nttl, encodeValue(value));
     } else {
       return redisCache.set(key, encodeValue(value));
     }
